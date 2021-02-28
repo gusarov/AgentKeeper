@@ -1,5 +1,5 @@
-name: agentSuite
-trigger: 
+name: runAll
+trigger:
 - master
 stages:
 - stage: stage1
@@ -12,6 +12,7 @@ stages:
         targetType: 'filePath'
         filePath: ./runall.ps1
         arguments: >
-          -input1 "input1"
-          -input2 "input2"
+          $(authFull)
       displayName: 'Run tests on each agent'
+      env:
+        AuthFull: $(authFull)

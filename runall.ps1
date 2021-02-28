@@ -1,27 +1,69 @@
 ﻿$Env:u  = 'https://dev.azure.com/xkit/DHost/_apis'
 $Env:uo = 'https://dev.azure.com/xkit/_apis'
 #$Env:authFull = 'Basic '
+$ErrorActionPreference = "Stop"
 
-Write-Host 'Auth'
+Write-Host 'Auth1'
 Write-Host $Env:authFull
 
+Write-Host 'Auth2'
+Write-Host ${Env:authFull}
+Write-Host (${Env:authFull}).Length
+
+$authFull=${Env:authFull}
+if ([string]::IsNullOrEmpty($authFull)) {
+    $authFull=$args[0] + " " + $args[1]
+    Write-Host 'Auth3'
+    Write-Host $authFull
+}
+
+if ([string]::IsNullOrWhiteSpace($authFull)) {
+    throw "No authorization"
+}
+
 $h = @{
-    Authorization = $Env:authFull;
+    Authorization = $authFull;
     'Content-Type' = 'application/json';
     Accept = 'application/json';
 }
 
 # Pools
-$r = ConvertFrom-Json (iwr -Headers $h -Uri "$Env:uo/distributedtask/pools?api-version=6.0").Content
+Write-Host 'Requestung Pools...'
+$j = (iwr -UseBasicParsing -Headers $h -Uri "$Env:uo/distributedtask/pools?api-version=6.0").Content
+try {
+    $r = ConvertFrom-Json $j
+} catch {
+    $j
+    throw
+}
 $poolDefault = $r.value | where name -eq 'Default'
 $poolAp = $r.value | where name -eq 'Azure Pipelines'
+#$poolAp
 
-# MyAgents
-$r = ConvertFrom-Json (iwr -Headers $h -Uri "$Env:uo/distributedtask/pools/$($poolDefault.id)/agents?api-version=6.0").Content
+#$r.value[0]
+#$r.value | FT -Property id,name,autoProvision,autoUpdate,autoSize,isHosted,poolType,size,isLegacy,options
+
+# Self-hosted agents
+Write-Host 'Requestung Default Agents...'
+$r = ConvertFrom-Json (iwr -UseBasicParsing -Headers $h -Uri "$Env:uo/distributedtask/pools/$($poolDefault.id)/agents?api-version=6.0").Content
 $r.value | FT -Property id,name
 $agents = $r.value
 
-# Run BD56 for all agents
+# Microsoft-hosted agents
+Write-Host 'Requestung Microsoft Agents...'
+$r = ConvertFrom-Json (iwr -UseBasicParsing -Headers $h -Uri "$Env:uo/distributedtask/pools/$($poolAp.id)/agents?api-version=6.0").Content
+#$r.value[0]
+#$r.value | FT -Property id,name,version,osDescription
+#$agents = $r.value
+
+#$agents | FT
+#$agents[0]
+
+# Requesting queues
+$r = ConvertFrom-Json (iwr -UseBasicParsing -Headers $h -Uri "$Env:u/distributedtask/queues?api-version=6.0-preview").Content
+$queueAp = $r.value | where name -eq 'Azure Pipelines'
+
+# Run BD51 for all agents
 $jobs = New-Object Collections.Generic.List[PSObject];
 foreach ($i in $agents)
 {
@@ -29,18 +71,42 @@ foreach ($i in $agents)
     $body = "
     { 
         ""definition"": {
-            ""id"": 56
+            ""id"": 51
         },
         demands: [
             ""Agent.Name -equals $($i.name)""
-        ]
+        ],
+        parameters: ""{AgentName: \""$($i.name)\""}""
     }"
 
     $body = $body | ConvertFrom-Json | ConvertTo-Json
 
-    $r = ConvertFrom-Json (iwr -Method Post -Headers $h -Uri "$Env:u/build/builds?api-version=6.0" -Body $body).Content
+    Write-Host 'Requestung Job Enqueue...'
+    $r = ConvertFrom-Json (iwr -UseBasicParsing -Method Post -Headers $h -Uri "$Env:u/build/builds?api-version=6.0" -Body $body).Content
     $jobs.Add($r);
 }
+
+Write-Host 'Requestung Linux @Microsoft Job Enqueue...'
+$body = "
+{ 
+    ""definition"": { ""id"": 51 },
+    ""queue"": { ""id"": $($queueAp.id) },
+    ""agentSpecification"": { ""identifier"": ""ubuntu-20.04"" }
+}"
+$body = $body | ConvertFrom-Json | ConvertTo-Json
+$r = ConvertFrom-Json (iwr -UseBasicParsing -Method Post -Headers $h -Uri "$Env:u/build/builds?api-version=6.0" -Body $body).Content
+$jobs.Add($r);
+
+Write-Host 'Requestung Windows @Microsoft Job Enqueue...'
+$body = "
+{ 
+    ""definition"": { ""id"": 51 },
+    ""queue"": { ""id"": $($queueAp.id) },
+    ""agentSpecification"": { ""identifier"": ""windows-2019"" }
+}"
+$body = $body | ConvertFrom-Json | ConvertTo-Json
+$r = ConvertFrom-Json (iwr -UseBasicParsing -Method Post -Headers $h -Uri "$Env:u/build/builds?api-version=6.0" -Body $body).Content
+$jobs.Add($r);
 
 Write-Host "This builds are queued:"
 $jobs | FT -Property id,uri,status
@@ -52,7 +118,7 @@ while ($true) {
     for ($i=0; $i -lt $jobs.Count; $i++)
     {
         $job = $jobs[$i]
-        $r = ConvertFrom-Json (iwr -Headers $h -Uri "$Env:u/build/builds/$($job.id)?api-version=6.0").Content
+        $r = ConvertFrom-Json (iwr -UseBasicParsing -Headers $h -Uri "$Env:u/build/builds/$($job.id)?api-version=6.0").Content
         #$r.status
         if ($job.id -ne $r.id) {
             Write-Host "Something went wrong, response id not matches job id"
@@ -64,7 +130,7 @@ while ($true) {
         if ($r.status -ne 'completed') {
             $done = $false
         }
-        if ($r.result -ne 'success') {
+        if ($r.result -ne 'succeeded') {
             $success = $false
         }
     }
@@ -77,5 +143,5 @@ while ($true) {
         }
         break
     }
-    Start-Sleep 2
+    Start-Sleep 10
 }
