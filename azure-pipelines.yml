@@ -1,0 +1,8 @@
+name: dockerbuildname # build numbering format
+stages:
+- stage: stage1
+  displayName: stage1str sss
+  jobs:
+  - job: job1
+    steps:
+    - script: echo Building!
