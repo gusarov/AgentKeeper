@@ -1,0 +1,17 @@
+name: agentSuite
+trigger: 
+- master
+stages:
+- stage: stage1
+  displayName: stage1
+  jobs:
+  - job: job1
+    steps:
+    - task: PowerShell@2
+      inputs:
+        targetType: 'filePath'
+        filePath: ./runall.ps1
+        arguments: >
+          -input1 "input1"
+          -input2 "input2"
+      displayName: 'Run tests on each agent'

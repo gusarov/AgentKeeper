@@ -1,0 +1,23 @@
+name: dockerbuildname # build numbering format
+stages:
+- stage: stage1
+  displayName: stage1
+  jobs:
+  - job: job1
+    steps:
+    - script: |
+      echo ##vso[build.updatebuildnumber]$(Build.BuildId)_$(AGENT.NAME)
+      docker --version
+      docker run hello-world
+
+      failOnStderr: true
+      displayName: WINDOWS
+      condition: eq(variables['Agent.OS'], 'Windows_NT')
+    - script: |
+      echo '##vso[build.updatebuildnumber]$(Build.BuildId)_$(AGENT.NAME)'
+      docker --version
+      docker run hello-world
+
+      failOnStderr: true
+      displayName: LINUX
+      condition: eq(variables['Agent.OS'], 'Linux')
