@@ -28,7 +28,7 @@ $h = @{
 }
 
 # Pools
-Write-Host 'Requestung Pools...'
+Write-Host 'Requesting Pools...'
 $j = (iwr -UseBasicParsing -Headers $h -Uri "$Env:uo/distributedtask/pools?api-version=6.0").Content
 try {
     $r = ConvertFrom-Json $j
@@ -36,8 +36,8 @@ try {
     $j
     throw
 }
-$poolDefault = $r.value | where name -eq 'Default'
-$poolAp = $r.value | where name -eq 'Azure Pipelines'
+$poolDefault = $r.value | Where-Object name -eq 'Default'
+$poolAp = $r.value | Where-Object name -eq 'Azure Pipelines'
 #$poolAp
 
 #$r.value[0]
@@ -85,7 +85,7 @@ foreach ($i in $agents)
     $r = ConvertFrom-Json (iwr -UseBasicParsing -Method Post -Headers $h -Uri "$Env:u/build/builds?api-version=6.0" -Body $body).Content
     $jobs.Add($r);
 }
-
+<#
 Write-Host 'Requestung Linux @Microsoft Job Enqueue...'
 $body = "
 { 
@@ -107,6 +107,7 @@ $body = "
 $body = $body | ConvertFrom-Json | ConvertTo-Json
 $r = ConvertFrom-Json (iwr -UseBasicParsing -Method Post -Headers $h -Uri "$Env:u/build/builds?api-version=6.0" -Body $body).Content
 $jobs.Add($r);
+#>
 
 Write-Host "This builds are queued:"
 $jobs | FT -Property id,uri,status
@@ -143,5 +144,5 @@ while ($true) {
         }
         break
     }
-    Start-Sleep 10
+    Start-Sleep 5
 }
