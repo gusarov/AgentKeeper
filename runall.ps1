@@ -85,7 +85,7 @@ foreach ($i in $agents)
     $r = ConvertFrom-Json (iwr -UseBasicParsing -Method Post -Headers $h -Uri "$Env:u/build/builds?api-version=6.0" -Body $body).Content
     $jobs.Add($r);
 }
-<#
+
 Write-Host 'Requestung Linux @Microsoft Job Enqueue...'
 $body = "
 { 
@@ -107,7 +107,7 @@ $body = "
 $body = $body | ConvertFrom-Json | ConvertTo-Json
 $r = ConvertFrom-Json (iwr -UseBasicParsing -Method Post -Headers $h -Uri "$Env:u/build/builds?api-version=6.0" -Body $body).Content
 $jobs.Add($r);
-#>
+
 
 Write-Host "This builds are queued:"
 $jobs | FT -Property id,uri,status
