@@ -1,5 +1,7 @@
 FROM ubuntu:20.04
-ARG ADO_ULR
+
+ARG PAT
+ARG OHN
 
 ENV DEBIAN_FRONTEND=noninteractive \
     AGENT_ALLOW_RUNASROOT=1
@@ -24,14 +26,17 @@ RUN apt-get install --no-install-recommends \
     moby-engine \
     moby-cli
 
+# Docker Compose
+RUN curl -L "https://github.com/docker/compose/releases/download/1.28.5/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose &&\
+    chmod +x /usr/local/bin/docker-compose
 
 # ADO
 RUN curl -LsS https://vstsagentpackage.azureedge.net/agent/2.183.1/vsts-agent-linux-x64-2.183.1.tar.gz | tar -xz
 RUN --mount=type=secret,id=pat ./config.sh --unattended \
-  --agent "autoado" \
+  --agent "${OHN}_autoado" \
   --url https://dev.azure.com/xkit/ \
   --auth 'PAT' \
-  --token $(cat /run/secrets/pat) \
+  --token $PAT \
   --pool "Default" \
   --replace \
   --acceptTeeEula
