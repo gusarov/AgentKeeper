@@ -7,7 +7,9 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN echo "APT::Get::Assume-Yes \"true\";" > /etc/apt/apt.conf.d/90assumeyes &&\
     apt-get update &&\
     apt-get install --no-install-recommends \
-    curl gpg git ca-certificates lsb-release lsb-core wget apt-transport-https software-properties-common
+    curl git ca-certificates lsb-release lsb-core wget apt-transport-https software-properties-common &&\
+    apt-get install \
+    gpg
 
 WORKDIR /ado
 
@@ -26,6 +28,9 @@ RUN apt-get install --no-install-recommends \
 # Docker Compose
 RUN curl -L "https://github.com/docker/compose/releases/download/1.28.5/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose &&\
     chmod +x /usr/local/bin/docker-compose
+
+RUN zcat /var/log/apt/history.log.*.gz | cat - /var/log/apt/history.log | grep -Po '^Commandline: apt-get install (?!.*--reinstall)\K.*' && false
+
 
 # Node JS
 RUN curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - &&\
