@@ -65,3 +65,9 @@ if (Test-Path $permissionMarker) {
 docker --version
 docker run --name hw hello-world
 docker rm hw
+docker-compose --version
+docker compose
+
+# node must be installed
+node --version
+npm --version
