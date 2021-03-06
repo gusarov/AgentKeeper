@@ -7,7 +7,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN echo "APT::Get::Assume-Yes \"true\";" > /etc/apt/apt.conf.d/90assumeyes &&\
     apt-get update &&\
     apt-get install --no-install-recommends \
-    curl git ca-certificates lsb-release lsb-core wget apt-transport-https software-properties-common
+    curl git gpg ca-certificates lsb-release lsb-core wget apt-transport-https software-properties-common
 
 WORKDIR /ado
 
@@ -26,6 +26,10 @@ RUN apt-get install --no-install-recommends \
 # Docker Compose
 RUN curl -L "https://github.com/docker/compose/releases/download/1.28.5/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose &&\
     chmod +x /usr/local/bin/docker-compose
+
+# Node JS
+RUN curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - &&\
+    apt-get install --no-install-recommends nodejs
 
 # ADO
 RUN curl -LsS https://vstsagentpackage.azureedge.net/agent/2.183.1/vsts-agent-linux-x64-2.183.1.tar.gz | tar -xz
