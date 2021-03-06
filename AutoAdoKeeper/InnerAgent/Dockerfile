@@ -3,13 +3,10 @@ FROM ubuntu:20.04
 ARG PAT
 ARG OHN
 
-ENV DEBIAN_FRONTEND=noninteractive \
-    AGENT_ALLOW_RUNASROOT=1
-
-RUN echo "APT::Get::Assume-Yes \"true\";" > /etc/apt/apt.conf.d/90assumeyes && \
-    apt-get update
-
-RUN apt-get install --no-install-recommends \
+ENV DEBIAN_FRONTEND=noninteractive
+RUN echo "APT::Get::Assume-Yes \"true\";" > /etc/apt/apt.conf.d/90assumeyes &&\
+    apt-get update &&\
+    apt-get install --no-install-recommends \
     curl git ca-certificates lsb-release lsb-core wget apt-transport-https software-properties-common
 
 WORKDIR /ado
@@ -32,6 +29,7 @@ RUN curl -L "https://github.com/docker/compose/releases/download/1.28.5/docker-c
 
 # ADO
 RUN curl -LsS https://vstsagentpackage.azureedge.net/agent/2.183.1/vsts-agent-linux-x64-2.183.1.tar.gz | tar -xz
+ENV AGENT_ALLOW_RUNASROOT=1
 RUN --mount=type=secret,id=pat ./config.sh --unattended \
   --agent "${OHN}_autoado" \
   --url https://dev.azure.com/xkit/ \
@@ -40,3 +38,4 @@ RUN --mount=type=secret,id=pat ./config.sh --unattended \
   --pool "Default" \
   --replace \
   --acceptTeeEula
+ENV DOCKER_BUILDKIT=1
