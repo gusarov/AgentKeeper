@@ -29,8 +29,7 @@ RUN apt-get install --no-install-recommends \
 RUN curl -L "https://github.com/docker/compose/releases/download/1.28.5/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose &&\
     chmod +x /usr/local/bin/docker-compose
 
-RUN zcat /var/log/apt/history.log.*.gz | cat - /var/log/apt/history.log | grep -Po '^Commandline: apt-get install (?!.*--reinstall)\K.*' && false
-
+#RUN zcat /var/log/apt/history.log.*.gz | cat - /var/log/apt/history.log | grep -Po '^Commandline: apt-get install (?!.*--reinstall)\K.*' && false
 
 # Node JS
 RUN curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - &&\
