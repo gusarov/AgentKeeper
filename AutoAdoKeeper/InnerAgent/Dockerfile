@@ -8,9 +8,9 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN echo "APT::Get::Assume-Yes \"true\";" > /etc/apt/apt.conf.d/90assumeyes &&\
     apt-get update &&\
     apt-get install \
-    curl git ca-certificates lsb-release lsb-core wget apt-transport-https software-properties-common &&\
-    apt-get install \
-    gpg
+    curl git ca-certificates lsb-release lsb-core wget apt-transport-https software-properties-common
+RUN apt-get install \
+    gnupg zip
 
 WORKDIR /ado
 
