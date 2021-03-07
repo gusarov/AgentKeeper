@@ -71,3 +71,6 @@ docker compose
 # node must be installed
 node --version
 npm --version
+
+# zip
+#zip
