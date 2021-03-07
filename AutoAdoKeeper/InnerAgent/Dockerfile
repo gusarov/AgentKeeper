@@ -3,10 +3,11 @@ FROM ubuntu:20.04
 ARG PAT
 ARG OHN
 
+#--no-install-recommends 
 ENV DEBIAN_FRONTEND=noninteractive
 RUN echo "APT::Get::Assume-Yes \"true\";" > /etc/apt/apt.conf.d/90assumeyes &&\
     apt-get update &&\
-    apt-get install --no-install-recommends \
+    apt-get install \
     curl git ca-certificates lsb-release lsb-core wget apt-transport-https software-properties-common &&\
     apt-get install \
     gpg
