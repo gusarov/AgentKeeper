@@ -1,5 +1,6 @@
-﻿$Env:u  = 'https://dev.azure.com/xkit/DHost/_apis'
+﻿$Env:u  = 'https://dev.azure.com/xkit/Todo/_apis'
 $Env:uo = 'https://dev.azure.com/xkit/_apis'
+
 #$Env:authFull = 'Basic '
 $ErrorActionPreference = "Stop"
 
@@ -46,8 +47,8 @@ $poolAp = $r.value | Where-Object name -eq 'Azure Pipelines'
 # Self-hosted agents
 Write-Host 'Requestung Default Agents...'
 $r = ConvertFrom-Json (iwr -UseBasicParsing -Headers $h -Uri "$Env:uo/distributedtask/pools/$($poolDefault.id)/agents?api-version=6.0").Content
-$r.value | FT -Property id,name
-$agents = $r.value
+$r.value | FT -Property id,name,enabled
+$agents = $r.value | where enabled -eq 'True'
 
 # Microsoft-hosted agents
 Write-Host 'Requestung Microsoft Agents...'
@@ -71,7 +72,7 @@ foreach ($i in $agents)
     $body = "
     { 
         ""definition"": {
-            ""id"": 51
+            ""id"": 65
         },
         demands: [
             ""Agent.Name -equals $($i.name)""

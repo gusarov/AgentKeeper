@@ -37,7 +37,7 @@ RUN curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - &&\
     apt-get install --no-install-recommends nodejs
 
 # ADO
-RUN curl -LsS https://vstsagentpackage.azureedge.net/agent/2.183.1/vsts-agent-linux-x64-2.186.1.tar.gz | tar -xz
+RUN curl -LsS https://vstsagentpackage.azureedge.net/agent/2.186.1/vsts-agent-linux-x64-2.186.1.tar.gz | tar -xz
 ENV AGENT_ALLOW_RUNASROOT=1
 RUN --mount=type=secret,id=pat ./config.sh --unattended \
   --agent "${OHN}_autoado" \
