@@ -1,7 +1,6 @@
 FROM ubuntu:20.04
 
 ARG PAT
-ARG OHN
 
 #--no-install-recommends 
 ENV DEBIAN_FRONTEND=noninteractive
@@ -40,7 +39,6 @@ RUN curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - &&\
 RUN ver=$(curl -s https://github.com/microsoft/azure-pipelines-agent/releases | grep  -oP "(?<=v)[0-9]+\.[0-9]+\.[0-9]+(?=\<)" -m1); curl -LsS https://vstsagentpackage.azureedge.net/agent/$ver/vsts-agent-linux-x64-$ver.tar.gz | tar -xz
 ENV AGENT_ALLOW_RUNASROOT=1
 RUN --mount=type=secret,id=pat ./config.sh --unattended \
-  --agent "${OHN}_autoado" \
   --url https://dev.azure.com/xkit/ \
   --auth 'PAT' \
   --token $PAT \
