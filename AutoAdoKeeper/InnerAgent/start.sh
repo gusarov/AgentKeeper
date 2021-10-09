@@ -14,7 +14,7 @@ loop() {
 		echo "Starting..."
 		echo autoado$1 
 		echo ${OHN}_autoado$1
-		docker run -e namePlus=$1 --privileged=true -v /var/run/docker.sock:/var/run/docker.sock --name autoado$1 autoado ./run.sh --once
+		docker run -e namePlus=$1 --privileged=true -v /var/run/docker.sock:/var/run/docker.sock --name autoado$1 autoado$1 ./run.sh --once
 	done
 }
 
