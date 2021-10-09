@@ -4,7 +4,7 @@ echo "AutoAdo Keeper STARTED!"
 echo $PAT > pat
 echo $OHN
 
-docker build -t autoado:latest --secret id=pat,src=pat --build-arg PAT=$PAT --build-arg OHN=$OHN .
+docker build -t autoado:latest --secret id=pat,src=pat --build-arg PAT=$PAT .
 
 loop() {
 	while true; do
