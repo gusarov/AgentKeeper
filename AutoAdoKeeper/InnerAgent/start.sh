@@ -1,5 +1,6 @@
 #!/bin/ash
 echo "AutoAdo Keeper STARTED!"
+set -e
 
 echo $PAT > pat
 echo $OHN
