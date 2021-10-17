@@ -5,6 +5,8 @@ set -e
 echo $PAT > pat
 echo $OHN
 
+docker build -t autoado:template -f DockerfileTemplate .
+
 loop() {
 	docker build -t autoado$1:latest --secret id=pat,src=pat --build-arg PAT=$PAT --build-arg OHN=$OHN --build-arg ANP=$1 .
 
