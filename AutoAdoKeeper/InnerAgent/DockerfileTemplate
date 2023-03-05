@@ -34,5 +34,6 @@ RUN curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - &&\
     apt-get install --no-install-recommends nodejs
 
 # ADO
-RUN force=1; ver=$(curl -s https://api.github.com/repos/microsoft/azure-pipelines-agent/releases/latest | jq -r ".tag_name"); curl -LsS https://vstsagentpackage.azureedge.net/agent/$ver/vsts-agent-linux-x64-$ver.tar.gz | tar -xz
+SHELL ["/bin/bash", "-c"]
+RUN force=1; ver=$(curl -s https://api.github.com/repos/microsoft/azure-pipelines-agent/releases/latest | jq -r ".tag_name"); ver="${ver:1}"; curl -LsS https://vstsagentpackage.azureedge.net/agent/$ver/vsts-agent-linux-x64-$ver.tar.gz | tar -xz
 ENV AGENT_ALLOW_RUNASROOT=1
